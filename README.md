@@ -10,7 +10,7 @@ This project was developed for the **Full Stack Developer Case Study (Mini ERP +
 ### 🔗 Submission Details
 - **Frontend Live URL:** *(Deployable to Vercel / Netlify)*
 - **Backend API Live URL:** *(Deployable to Render / Railway / AWS EC2)*
-- **GitHub Repository:** *(Your GitHub Repository URL)*
+- **GitHub Repository:** *(https://github.com/manesuraj14/mini-erp-crm.git)*
 - **Postman Collection:** [`postman_collection.json`](./postman_collection.json)
 
 ---
