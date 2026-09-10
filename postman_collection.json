@@ -1,0 +1,224 @@
+{
+  "info": {
+    "_postman_id": "87c7d4eb-3528-45b6-b2ac-e62c918423e8",
+    "name": "Mini ERP + CRM Operations API",
+    "description": "Comprehensive Postman collection for Wholesale & Distribution Mini ERP + CRM Portal.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000/api", "type": "string" },
+    { "key": "auth_token", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('auth_token', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@minierp.com\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login as Sales",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('auth_token', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sales@minierp.com\",\n  \"password\": \"Sales@123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Get Current User Profile (/me)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+            "url": { "raw": "{{base_url}}/auth/me", "host": ["{{base_url}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Customer CRM",
+      "item": [
+        {
+          "name": "Get All Customers (Search & Filter)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/customers?page=1&limit=10&search=&status=ACTIVE",
+              "host": ["{{base_url}}"],
+              "path": ["customers"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "search", "value": "" },
+                { "key": "status", "value": "ACTIVE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create New Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Fortis Health Logistics\",\n  \"mobileNumber\": \"+91 99887 76655\",\n  \"email\": \"supplies@fortishealth.com\",\n  \"businessName\": \"Fortis Healthcare Supply Network\",\n  \"gstNumber\": \"29AAACF9988D1Z8\",\n  \"customerType\": \"WHOLESALE\",\n  \"address\": \"Bannerghatta Road, Bangalore, Karnataka 560076\",\n  \"status\": \"ACTIVE\",\n  \"followUpDate\": \"2026-09-20\",\n  \"notes\": \"Large multi-specialty hospital chain account\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/customers", "host": ["{{base_url}}"], "path": ["customers"] }
+          }
+        },
+        {
+          "name": "Add Follow-up Note to Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"noteText\": \"Discussed Q4 surgical gloves requirement. Customer requested sample shipment.\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/customers/cust-id/notes", "host": ["{{base_url}}"], "path": ["customers", "cust-id", "notes"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Products & Inventory",
+      "item": [
+        {
+          "name": "Get Products (with Low Stock Filter)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/products?lowStock=false",
+              "host": ["{{base_url}}"],
+              "path": ["products"],
+              "query": [{ "key": "lowStock", "value": "false" }]
+            }
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ibuprofen 400mg Tablets (Strip of 10)\",\n  \"sku\": \"MED-IBU-400\",\n  \"category\": \"Analgesics\",\n  \"unitPrice\": 28.50,\n  \"currentStock\": 250,\n  \"minStockAlert\": 50,\n  \"locationWarehouse\": \"Warehouse A - Bay 06\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/products", "host": ["{{base_url}}"], "path": ["products"] }
+          }
+        },
+        {
+          "name": "Adjust Stock (IN / OUT Movement)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 50,\n  \"movementType\": \"IN\",\n  \"reason\": \"Supplier Inward Batch Receipt #PO-2026-904\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/products/prod-id/stock-movement", "host": ["{{base_url}}"], "path": ["products", "prod-id", "stock-movement"] }
+          }
+        },
+        {
+          "name": "Get Stock Movement Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+            "url": { "raw": "{{base_url}}/products/stock-logs", "host": ["{{base_url}}"], "path": ["products", "stock-logs"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Sales Challans",
+      "item": [
+        {
+          "name": "List All Sales Challans",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+            "url": { "raw": "{{base_url}}/challans", "host": ["{{base_url}}"], "path": ["challans"] }
+          }
+        },
+        {
+          "name": "Create Confirmed Challan (Atomic Stock Decrement)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"customer-uuid\",\n  \"items\": [\n    { \"productId\": \"product-uuid\", \"quantity\": 5 }\n  ],\n  \"status\": \"CONFIRMED\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/challans", "host": ["{{base_url}}"], "path": ["challans"] }
+          }
+        },
+        {
+          "name": "Confirm Draft Challan",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+            "url": { "raw": "{{base_url}}/challans/challan-id/confirm", "host": ["{{base_url}}"], "path": ["challans", "challan-id", "confirm"] }
+          }
+        }
+      ]
+    }
+  ]
+}

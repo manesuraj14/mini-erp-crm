@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  SALES
+  WAREHOUSE
+  ACCOUNTS
+}
+
+model User {
+  id           String             @id @default(uuid())
+  email        String             @unique
+  passwordHash String
+  name         String
+  role         Role               @default(SALES)
+  isActive     Boolean            @default(true)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  challans     Challan[]
+  stockLogs    StockMovementLog[]
+  notes        CustomerNote[]
+}
+
+enum CustomerType {
+  RETAIL
+  WHOLESALE
+  DISTRIBUTOR
+}
+
+enum CustomerStatus {
+  LEAD
+  ACTIVE
+  INACTIVE
+}
+
+model Customer {
+  id           String         @id @default(uuid())
+  customerName String
+  mobileNumber String         @unique
+  email        String         @unique
+  businessName String
+  gstNumber    String?
+  customerType CustomerType   @default(RETAIL)
+  address      String         @db.Text
+  status       CustomerStatus @default(LEAD)
+  followUpDate DateTime?
+  notes        String?        @db.Text
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  challans     Challan[]
+  notesHistory CustomerNote[]
+}
+
+model CustomerNote {
+  id         String   @id @default(uuid())
+  customerId String
+  userId     String
+  noteText   String   @db.Text
+  createdAt  DateTime @default(now())
+
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id                String             @id @default(uuid())
+  name              String
+  sku               String             @unique
+  category          String
+  unitPrice         Decimal            @db.Decimal(10, 2)
+  currentStock      Int                @default(0)
+  minStockAlert     Int                @default(10)
+  locationWarehouse String
+  imageUrl          String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  stockLogs         StockMovementLog[]
+  challanItems      ChallanItem[]
+}
+
+enum MovementType {
+  IN
+  OUT
+}
+
+model StockMovementLog {
+  id              String       @id @default(uuid())
+  productId       String
+  quantityChanged Int
+  movementType    MovementType
+  reason          String
+  createdById     String
+  createdAt       DateTime     @default(now())
+
+  product         Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdBy       User         @relation(fields: [createdById], references: [id])
+}
+
+enum ChallanStatus {
+  DRAFT
+  CONFIRMED
+  CANCELLED
+}
+
+model Challan {
+  id            String        @id @default(uuid())
+  challanNumber String        @unique
+  customerId    String
+  totalQuantity Int           @default(0)
+  totalAmount   Decimal       @default(0) @db.Decimal(10, 2)
+  status        ChallanStatus @default(DRAFT)
+  createdById   String
+  createdAt     DateTime      @default(now())
+  confirmedAt   DateTime?
+  updatedAt     DateTime      @updatedAt
+
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  createdBy     User          @relation(fields: [createdById], references: [id])
+  items         ChallanItem[]
+}
+
+model ChallanItem {
+  id                  String   @id @default(uuid())
+  challanId           String
+  productId           String
+  snapshotProductName String
+  snapshotSku         String
+  snapshotUnitPrice   Decimal  @db.Decimal(10, 2)
+  quantity            Int
+  subtotal            Decimal  @db.Decimal(10, 2)
+
+  challan             Challan  @relation(fields: [challanId], references: [id], onDelete: Cascade)
+  product             Product  @relation(fields: [productId], references: [id])
+}
